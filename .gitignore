@@ -1,0 +1,40 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Compilation / Build output
+*.log
+*.out
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+
+# Backup files
+*.bak
+*.tmp
+*.temp
+
+# Node (if applicable in the future)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
