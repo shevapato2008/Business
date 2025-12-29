@@ -1,247 +1,164 @@
-# 请分析saiboard项目使用到的材料，列一个清单出来
+# Q: What material does the project use to build the go board? How was the board constructed piece by piece?
 
-下面这份清单是基于 **Saiboard 项目主页 README 里明确写到的功能点 + 主题标签（raspberry-pi / esp32 / cnc / 3d-printing / flutter / katago）**来倒推的“可采购物料清单（BOM）”。项目 README 明确提到这些关键点：**木质棋盘、感知电子用于落子检测与 LED 反馈、磁性棋子、集成 KataGo、并用 Web App 控制交互**。 ([GitHub][1])
+A: Responded with gemini-3-flash-preview
 
-> 说明：我尝试继续打开 repo 里的 `electronics/board/stones/software` 子目录获取更细的型号/数量，但 GitHub 页面在这些目录页会报 “error while loading”，导致无法读到更具体的元件明细（比如具体用哪种传感器/LED/PCB 文件名）。因此下面的清单会把**“必需项（高度确定）”**和**“实现方式候选（需要你最终确认）”**分开列，方便你采购时不走弯路。
+The Saiboard project uses a combination of traditional woodworking and modern fabrication techniques to construct the Go board and its stones.
 
----
+  Materials
+   * Board Structure: Plywood is the primary material. The sides are 10mm thick, the bottom is 5mm, and the top is 6.5mm.
+   * Surface: A 0.6mm thick wood veneer is used to cover the top of the board, creating a smooth playing surface that hides the LED holes.
+   * Finishing & Protection: Wood glue (like Titebond), resin (poured into the LED holes for sturdiness and protection), and several layers of polycrylic finish (wipe-on poly).
+   * Grid: Applied using a rOtring isograph technical pen.
+   * Stones: Made from cast resin mixed with color paste. They contain 7x4mm N35 neodymium magnets encased in zinc-plated steel hexagonal nuts (DIN 439 BM 8x1) for added weight and magnetic
+     shielding.
 
-## A. 必需项（高度确定，建议先买齐）
+  Construction Process
+   1. Cutting the Pieces: The plywood pieces (top, bottom, and sides) are cut using a CNC machine based on provided DXF files. The top piece includes a grid of holes for the SK6812 LEDs.
+   2. Assembly: The plywood pieces are glued and clamped together overnight to form the board's chassis.
+   3. Veneering: After sanding the board, glue is applied to the top and a slightly oversized piece of veneer. Once the glue is dry, the veneer is ironed onto the top and trimmed or sanded to fit
+      perfectly.
+   4. Resin Filling: Resin is poured into the holes from the inside to protect the LEDs and reinforce the structure.
+   5. Initial Finishing: The board is sanded and coated with approximately four layers of polycrylic.
+   6. Applying the Grid: The grid lines are drawn using a CNC machine fitted with a custom 3D-printed, spring-loaded penholder and the rOtring pen. Star points are added by hand.
+   7. Final Finishing: The board receives final layers of polycrylic and a last round of fine sanding for a smooth finish.
+   8. Stone Fabrication: A silicone mold is created from a 3D-printed positive. The stones are cast in resin, with magnets and nuts inserted mid-cure. Once fully cured, they are wet-sanded and
+      polished.
 
-### 1) 主控计算与存储（跑 KataGo + Web/服务）
+# Q: Does the project inlude detailed documentation on how to manufacture the board so that if I hand it over to a manufacturer the board can be replicated easily. Please pick out such documentations in the project.
 
-* **Raspberry Pi（项目主题包含 raspberry-pi）**：建议 RPi 4B / 5（你也可换 RK，但 Saiboard 明确走过 RPi 路线） ([GitHub][1])
-* **存储**：microSD（≥32GB）或 USB SSD（更稳更快）
-* **电源**：与主板匹配的 5V 供电（RPi5 通常需要更大功率）
-* **网络**：Wi-Fi/以太网（用于 Web App/远程访问/更新）
-* **（可选）散热**：散热片/风扇（长时间跑引擎更稳）
+A: Responded with gemini-3-flash-preview
 
-### 2) 棋盘本体与结构件（木质 + CNC）
+The Saiboard project provides several key pieces of technical documentation that would be essential for replicating the board through a manufacturer or professional fabrication shop. 
 
-* **木质棋盘（CNC 加工）**：README 明确是 *wooden Go board*，且主题包含 *cnc* ([GitHub][1])
-* **安装结构件**：底板/支撑框、螺丝铜柱、定位销、线槽/理线夹、胶水（环氧/木工胶）
+  While there isn't a single "standard" factory assembly manual, the following resources together provide the necessary specifications:
 
-### 3) “落子检测 + LED 反馈”电子系统（核心）
+  1. Electronics Manufacturing (PCBs)
+  The project includes complete design files for the custom electronics, which are divided into four modular PCBs (11x3, 3x8, 8x3, and 8x8) to cover the 19x19 grid.
+   * Gerber Files: Located in electronics/kicad_files/*/gerbers/, these are the industry-standard files required by PCB manufacturers (like JLCPCB) to fabricate the boards.
+   * KiCad Projects: Full source files (.kicad_pro, .kicad_sch, .kicad_pcb) are available in the same directories, allowing a manufacturer to generate Pick-and-Place files or BoMs if needed.
+   * Datasheets: Crucial components (Hall effect sensors, LED drivers, multiplexers) are documented in electronics/datasheets/.
 
-README 明确：*sensory electronics* + *LED feedback*，主题包含 *esp32* ([GitHub][1])
+  2. Physical Construction (CNC/Mechanical)
+  The board's structural components are designed for CNC fabrication.
+   * CNC Files: Located in board/cnc_files/, these include .dxf and .f3d files for the top, bottom, and side panels of the plywood chassis. A manufacturer with a CNC router or laser cutter can use
+     these files to precisely cut the wood pieces.
+   * 3D Print Files: Necessary jigs (like the PCB soldering masks) and specialized parts (like the pen holder for drawing the grid) are available as .f3d and .gcode files in electronics/3d_prints/
+     and board/3d_prints/.
 
-* **ESP32 开发板 / 模组**（作为采集与控制 MCU）
-* **自制 PCB 或洞洞板方案**（用于传感器阵列与走线汇聚）
-* **LED 阵列（用于提示下一手/胜率/形势等）**
-* **线材与连接器**：杜邦线、排线、JST 端子、焊锡、热缩管
+  3. Assembly & BOM Details
+   * Electronics BOM: While there isn't a single CSV file, the electronics/README.md and the KiCad schematics (.kicad_sch) identify all specific components. The README also specifies the required
+     power supply (5V/10A) and hardware (stainless steel screws).
+   * Stone Manufacturing: stones/README.md provides a detailed recipe for casting the stones, including the specific resin types, magnet sizes (7x4mm N35), and steel nut specifications (DIN 439 BM
+     8x1).
 
-### 4) 棋子（磁性重棋子）
+  4. Software Integration
+   * Firmware: The ESP32-S3 firmware is in software/esp32s3/, which acts as the bridge between the hardware and the AI services.
+   * Architecture Overview: GEMINI.md and software/overview.png provide the high-level logic of how these components communicate, which is vital for testing the manufactured product.
 
-README 明确：*Heavy, magnetic Go stones* ([GitHub][1])
+  Recommendation for Replication:
+  To have this replicated by a professional manufacturer, you should provide them with:
+   1. The Gerber zip files from the electronics/kicad_files/ subdirectories.
+   2. The DXF files from board/cnc_files/.
+   3. The Assembly instructions found in board/README.md and electronics/README.md, which specify materials like plywood thickness and veneer application.
 
-* **磁性围棋子**（黑白各一套）
-* **（候选）磁铁/金属配重**：若你要自己改造普通棋子
 
----
-
-## B. 关键电子件“实现方式候选”（你采购前需要二选一/三选一）
-
-Saiboard 的 README 没写具体传感器型号，但“棋盘落子检测”通常就这几条路线。你可以根据成本、装配难度和可靠性选：
-
-### 方案 1：磁 + 霍尔传感器（最常见、抗干扰好）
-
-* **每个交叉点一个霍尔传感器**（数量大但体验最好）
-* **I/O 扩展**：I2C GPIO 扩展器（如 MCP23017 类）/矩阵扫描方案（减少 ESP32 引脚压力）
-* **优点**：稳定、可做很低误判
-* **代价**：器件数量大、PCB/装配量大
-
-### 方案 2：磁 + 簧片开关/干簧管（更便宜但一致性略差）
-
-* **每点簧片开关** + 矩阵扫描
-* **优点**：便宜
-* **代价**：一致性、寿命、装配容差更敏感
-
-### 方案 3：电容/电阻触摸阵列（不依赖磁棋子）
-
-* **电极阵列 + 采集芯片**
-* **优点**：棋子不必磁性
-* **代价**：算法/校准复杂，对材料/湿度更敏感
-
-> 如果你想尽量接近“隐智围棋”那种稳，通常更偏向 **方案 1（霍尔）**。
-
----
-
-## C. 软件侧（从 README 可确定的组件形态）
-
-README 明确：**集成 KataGo**、并且是 **“用户友好的 web app”**；主题里也有 **flutter**，很可能是 Flutter Web 做 UI。 ([GitHub][1])
-
-* **KataGo 引擎**（RPi 上跑 CPU 版）
-* **控制/对弈/展示 Web App**（Flutter Web 或其它前端）
-* **主控服务**（把棋盘数据 → SGF/局面 → KataGo 分析 → UI 展示）
+下面是对你提供的两段 Q&A 的**专业中文翻译**。我在每段后面都附上了“**名词解释（面向非工程背景）**”，尽量把关键术语讲清楚、方便你后续跟工厂沟通。
 
 ---
 
-## D. 采购清单（你可以直接拿去下单的“最小可行 BOM”）
+# 问答 1：材料与棋盘如何分件制造
 
-按“先跑通 MVP，再升级”的思路，我建议你先买这一套：
+**Q：这个项目用什么材料制作围棋棋盘？棋盘是如何一块块加工并组装起来的？**
 
-1. **主板**：Raspberry Pi 5（8GB）或 RPi 4B（4GB/8GB）
-2. **存储/电源/散热**：microSD 64GB + 官方/高质量电源 + 风扇散热
-3. **MCU**：ESP32 DevKit（先用开发板，后面再换模组+PCB） ([GitHub][1])
-4. **LED**：可寻址 LED 灯带/灯珠（先做“提示点位”，后面再做全盘效果）
-5. **线材**：杜邦线、排线、JST 插头、热缩管、扎带
-6. **加工**：CNC 木板（棋盘 + 底壳/走线槽位） ([GitHub][1])
-7. **棋子**：磁性棋子一副（黑白各 181） ([GitHub][1])
-8. **工具**：电烙铁、焊锡、助焊剂、万用表
+**A：**
+Saiboard 项目在制作棋盘与棋子时，结合了传统木工工艺与现代数字化制造手段（例如 CNC 加工与 3D 打印夹具）。
 
----
+## 1）材料（Materials）
 
-## 下一步我建议你怎么做（避免一次性买错）
+* **棋盘结构（Board Structure）**：主要材料是**胶合板（Plywood）**。其中，侧板厚度为 **10mm**，底板厚度为 **5mm**，顶板厚度为 **6.5mm**。
+* **表层（Surface）**：在棋盘顶面覆盖一层 **0.6mm 的木皮（Wood veneer）**。木皮用于形成平整细腻的对弈手感，同时还能遮住顶板上为 LED 预留的孔位，使外观看起来更像传统棋盘。
+* **粘接与保护（Finishing & Protection）**：使用**木工胶**（例如 Titebond 一类产品）进行结构粘合；在 LED 孔位内部灌注**树脂（Resin）**以增强强度和保护；最后使用多层**聚丙烯酸清漆/聚氨酯类面漆（Polycrylic / wipe-on poly）**进行表面封闭和耐磨处理。
+* **棋盘网格（Grid）**：使用 **rOtring isograph 工程笔/针管笔**绘制网格线。
+* **棋子（Stones）**：棋子由**浇注树脂（cast resin）**混合色浆制成。棋子内部嵌入 **7×4mm 的 N35 钕磁铁**，并将磁铁装入**镀锌钢六角薄螺母**（规格 **DIN 439 BM 8×1**）中，以增加重量并对磁场起到一定“屏蔽/稳定”作用（增强检测一致性）。
 
-* **先不急着买 361 个传感器**：先用 9×9 或 13×13 的小板验证“落子检测 + LED 指示 + KataGo 通路 + Web App 交互”，通了再扩到 19×19。
-* 你如果把 GitHub 子目录里的 `electronics/` 文件（比如原理图/PCB/BOM）**下载成 zip 发我**，我就能把上面“候选项”变成**精确到型号/数量/封装/购买链接关键字**的 BOM（例如：霍尔型号、LED 型号、扩展器数量、PCB 层数/尺寸等）。
+## 2）加工与组装流程（Construction Process）
 
-[1]: https://github.com/miliar/saiboard "GitHub - miliar/saiboard: An open-source, wooden electronic Go board that integrates with KataGo."
+1. **切割与开孔**：依据项目提供的 **DXF 图纸**，用 **CNC 机床**切割胶合板的顶板、底板与侧板。顶板包含为 **SK6812 LED** 预留的孔阵列。
+2. **结构装配**：将各块胶合板使用木工胶粘合，并用夹具夹紧，通常需过夜固化，形成棋盘“骨架”。
+3. **贴木皮（Veneering）**：对棋盘表面打磨后，在顶板和木皮上上胶。待胶层达到适合热压的状态后，用熨斗加热将木皮熨贴到顶板上；木皮会略大一圈，最后修边/打磨至完全贴合。
+4. **树脂灌注**：从棋盘内部向 LED 孔位灌注树脂，用于保护内部元件并加强结构强度。
+5. **初步上漆**：打磨后涂覆约 **4 层** Polycrylic（或类似表面涂层），形成基础保护层。
+6. **绘制棋盘网格**：使用 CNC 机床配合**定制的 3D 打印弹簧笔夹**与 rOtring 工程笔，自动绘制网格线；“星位”（九个小黑点）由手工补点。
+7. **最终表面处理**：继续增加若干层面漆，并进行细砂打磨，使表面达到光滑耐磨效果。
+8. **棋子制作**：先用 3D 打印制作棋子“母模”，再用硅胶翻模做成模具；将树脂浇注成型，树脂半固化时把磁铁与螺母嵌入；完全固化后进行湿磨与抛光。
 
+## 名词解释（给普通人看的）
 
-
-# Q: CNC木板是什么? 这个saiboard项目中棋盘具体如何走线并组装起来的?
-
-下面按“**CNC 木板是什么**”→“**Saiboard 这种棋盘为什么要 CNC**”→“**棋盘内部怎么走线**”→“**典型组装步骤（对照 Saiboard 结构）**”给你讲清楚。由于你给的 Saiboard 仓库在我这边打开子目录（`board/`、`electronics/`）会报 GitHub 的加载错误，没法逐行读取到作者的具体板层图/走线图；但仓库主页已经明确了它是 **木质棋盘 + 传感电子 + ESP32 + CNC** 这条路线，我会按这类智能棋盘的标准工程实现把“怎么做”讲到你可以直接找工厂/打样为止。 ([GitHub][1])
-
----
-
-## 1) CNC 木板是什么？
-
-**CNC（Computer Numerical Control）木板**，就是用数控机床（常见是 CNC Router/雕刻机）按 G-code 路径去**铣削、钻孔、开槽、开腔**木板（或竹板/复合板）。它的价值在于：
-
-* **高精度重复加工**：孔位、槽宽、深度一致（对 19×19 这种网格阵列非常关键）
-* **能加工“隐藏结构”**：比如**背面走线槽**、**电子腔体**、**定位台阶**、**暗扣/螺柱位**
-* **利于分层结构**：把复杂内部结构拆成 2~4 层板分别加工，再叠装
-
-Saiboard 本身仓库语言占比几乎都是 G-code，且目录里就有 `board/`，基本可以确定作者提供了给 CNC 用的加工文件。 ([GitHub][2])
-
----
-
-## 2) Saiboard 这种棋盘为什么必须 CNC？
-
-Saiboard 的定位是：**木质实体棋盘**，落子检测 + LED 引导，并且用 **ESP32** 做底层电子控制，再接 KataGo 等软件。([GitHub][1])
-要在“外观仍然像真棋盘”的前提下塞进电子件，CNC 通常用来做三类隐藏加工：
-
-1. **传感器/灯的安装腔体**（背面大面积开“浅腔”或很多小腔）
-2. **走线槽**（背面开 2~5mm 宽、2~4mm 深的槽，让线束/排线躺平，不鼓包）
-3. **定位与装配结构**（台阶、沉头孔、螺柱位、卡扣位，确保叠装后网格对齐）
+* **胶合板（Plywood）**：由多层木片交错压合的板材，不容易变形开裂，适合做结构件。
+* **木皮（Veneer）**：很薄的实木表层（0.6mm 这种很常见），贴在胶合板上既美观又能遮住内部结构。
+* **CNC（数控加工）**：用电脑控制的雕刻/铣削设备，能精准切割、开孔、开槽，适合做 19×19 这种重复孔阵列。
+* **DXF 文件**：常见的“二维加工图纸格式”，给 CNC/激光切割等设备用来按尺寸加工。
+* **SK6812 LED**：一种常见的“可寻址 RGB LED”（一颗灯珠可单独控制颜色/亮度），适合做棋盘点位提示。
+* **树脂灌注（Resin filling）**：把液态树脂灌进孔/腔体，固化后变硬，能加固、防潮、防尘、保护内部器件。
+* **Polycrylic / wipe-on poly**：透明保护涂层（类似清漆），用于耐磨、防水、提升手感与外观。
+* **rOtring isograph 工程笔**：一种针管式绘图笔，线宽稳定，适合画网格线。
+* **钕磁铁 N35**：钕铁硼磁铁的等级，“N35”表示磁性能等级，常用于需要稳定磁场的检测场景。
+* **DIN 439 薄螺母**：一种标准件规格的薄六角螺母。这里主要作为“配重 + 结构固定 + 磁场形态更稳定”的载体。
 
 ---
 
-## 3) 棋盘内部一般怎么“走线”？
+# 问答 2：是否有足够文档让工厂复刻生产？有哪些资料？
 
-对 19×19=361 个交点，如果每个交点都有检测（常见是霍尔传感器）+ 指示灯（LED），**绝不可能用“361 个点各拉两根线”那种直连方式**，线会爆炸。
+**Q：这个项目是否包含足够详细的制造文档？如果我交给生产厂家，能否较容易地复制制造？请从项目中挑出相关文档。**
 
-工程上通常是“三段式”：
+**A：**
+Saiboard 项目提供了若干关键技术资料，组合起来足以支持交付给制造商或专业加工厂进行复刻生产。虽然项目未必提供一份“标准化的工厂装配手册（assembly manual）”，但以下资源基本覆盖了生产所需的规格与文件。
 
-### A. 棋盘面下：**阵列化的“传感/灯板”**
+## 1）电子制造（PCBs）
 
-常见两种做法：
+项目包含完整的定制电子设计文件，并将 19×19 的棋盘区域拆分为四种尺寸的模块化 PCB（例如 11×3、3×8、8×3、8×8）来覆盖整盘。
 
-* **整板 PCB（大 PCB）**：一整块 19×19 传感器阵列（成本高、打样难、运输易损）
-* **条形/分块 PCB 拼接**：比如每行/每列一条板，或者 19×(N) 的小板拼起来（更适合 DIY/小批量）
+* **Gerber 文件**：位于 `electronics/kicad_files/*/gerbers/`，这是 PCB 工厂（如 JLCPCB）用于生产电路板的工业标准文件。
+* **KiCad 工程文件**：同目录下提供 `.kicad_pro`、`.kicad_sch`、`.kicad_pcb` 等源文件，制造商可据此生成贴片坐标（Pick-and-Place）文件、物料清单（BOM）等。
+* **Datasheets（器件规格书）**：关键器件（如霍尔传感器、LED 驱动、复用器等）的规格说明位于 `electronics/datasheets/`。
 
-这些 PCB 通过 **排线/板对板** 汇总到控制板。
+## 2）结构制造（CNC/机械部分）
 
-### B. 板内走线：**“槽 + 排线/线束”**
+棋盘结构件是为 CNC 加工而设计的：
 
-* CNC 在背面开**主干槽**（从中心或一侧汇聚到控制腔）
-* 再开若干**支槽**（把每块传感/LED 子板接到主干槽）
-* 线材形态：
+* **CNC 文件**：位于 `board/cnc_files/`，包含顶板、底板、侧板的 `.dxf`、`.f3d` 等文件。具备 CNC 雕刻机或激光切割能力的工厂可用这些文件精准切割木板。
+* **3D 打印文件**：必要的夹具（例如 PCB 焊接遮罩/治具）及专用零件（例如用于画网格的笔夹）以 `.f3d` 和 `.gcode` 形式提供，位于 `electronics/3d_prints/` 与 `board/3d_prints/` 等目录。
 
-  * **FPC/FFC 排线**（薄、好走槽，但需要连接器）
-  * **硅胶软线线束**（更通用，但更厚）
-  * **灯带类（如果 LED 用 WS2812 这种串行）**就更省线：只要电源 + 一根数据线串起来
+## 3）装配与物料信息（Assembly & BOM）
 
-### C. 控制与上位机：**ESP32 控制板 + 到树莓派/主控**
+* **电子物料（BOM）**：虽未必提供单独的 CSV，但 `electronics/README.md` 与 KiCad 原理图（`.kicad_sch`）中标识了具体元器件；README 还说明了所需电源规格（例如 **5V / 10A**）与硬件件（如不锈钢螺丝）。
+* **棋子制作**：`stones/README.md` 提供了较详细的浇注配方与材料规格，包括树脂类型、磁铁尺寸（7×4mm N35）、螺母规格（DIN 439 BM 8×1）等。
 
-Saiboard 话题标签里明确有 **ESP32**，说明它很可能用 ESP32 做：
+## 4）软件集成与系统架构（Software Integration）
 
-* 扫描传感器阵列（矩阵扫描 / I2C 扩展 / ADC/IO 扩展）
-* 驱动 LED（串行 LED 或 LED 驱动芯片）
-* 与上位机（树莓派）通信（USB 串口 / Wi-Fi / BLE） ([GitHub][1])
+* **固件（Firmware）**：ESP32-S3 固件位于 `software/esp32s3/`，作为硬件与 AI 服务之间的桥接层。
+* **架构概览**：`GEMINI.md` 与 `software/overview.png` 给出了高层通信逻辑说明，便于工厂在装配完成后进行系统联调与测试。
 
----
+### 复刻生产建议（交给工厂时应提供的资料）
 
-## 4) “Saiboard 这种棋盘”典型的 CNC 分层与组装方式（你可以照这个去找工厂打样）
+如果要交给专业制造商复刻，建议至少提供：
 
-下面是最常见、也最容易量产的木质智能棋盘叠层结构（不依赖复杂工艺）：
+1. `electronics/kicad_files/` 子目录下的 **Gerber 压缩包**（给 PCB 厂投板）；
+2. `board/cnc_files/` 下的 **DXF 文件**（给 CNC 木工厂切割）；
+3. `board/README.md` 与 `electronics/README.md` 的装配说明（包含胶合板厚度、木皮工艺等关键信息）。
 
-### 第 1 层：**面板（可见的棋盘面）**
+## 名词解释（给普通人看的）
 
-* 材料：榉木/枫木/竹板/复合木（稳定、不易翘）
-* 加工：
-
-  * 表面可能只做**网格刻线**或丝印（看你要不要传统棋盘质感）
-  * 若需要“点位发光”，可在交点做**微孔**或背面做**透光浅腔**（让 LED 光透出来但正面看不到灯珠）
-
-> 关键参数：**面板厚度**直接决定传感器与棋子磁铁的距离；太厚会漏检，太薄手感差。
-
-### 第 2 层：**功能层（传感器/LED 腔体 + 走线槽）——CNC 的主战场**
-
-* 背面 CNC 开两类结构：
-
-  1. **传感器/LED 的“平底浅腔”**：把 PCB/灯带嵌进去，表面齐平
-  2. **走线槽**：把排线/线束埋进去，不被底盖压到
-* 这一层通常还会开一个**控制腔**：放 ESP32 控制板、稳压、电源分配、接口（USB/电源口）
-
-### 第 3 层：**底盖（封板 + 结构强度 + 可维护）**
-
-* 建议做成**可拆**（螺丝固定），别全胶死：
-
-  * 你后期一定会改线、换板、修坏点
-* 底盖上加**脚垫**，并预留散热/走线出口
+* **PCB（印刷电路板）**：承载电子元件的板子，相当于电子系统的“骨架与线路”。
+* **Gerber 文件**：PCB 工厂生产电路板必须的标准输出文件（包含每层铜箔/阻焊/丝印/钻孔信息）。
+* **KiCad**：一种常见的开源电路设计软件。
+* **BOM（Bill of Materials，物料清单）**：列出所有元件型号、数量、封装，用于采购与生产备料。
+* **Pick-and-Place 文件**：给贴片机用的“元件坐标表”，自动把元件贴到 PCB 上。
+* **Datasheet（规格书）**：元器件的官方说明书，包含电气参数、引脚定义、尺寸等。
+* **复用器（Multiplexer）**：一种“多路选择器”，用较少的 MCU 引脚去读取更多的传感器输入。
+* **ESP32-S3 固件**：运行在 ESP32-S3 微控制器上的程序，用来采集棋盘传感器数据、控制 LED，并与上位机通信。
+* **.f3d / .gcode**：`.f3d` 常见于 Fusion 360 的三维设计文件；`.gcode` 是 CNC/3D 打印设备执行的“加工指令”。
 
 ---
 
-## 5) 你真正需要盯住的“走线/组装细节”（很实用）
-
-### 走线槽怎么开才合理？
-
-* 主干槽：宽 4~6mm、深 3~4mm（能躺下排线或 2~3 根硅胶线）
-* 支槽：宽 2~4mm、深 2~3mm
-* 转角做**圆角**（CNC 刀具半径限制），避免排线折死
-
-### 电子件怎么固定？
-
-* PCB：优先 **螺丝 + 铜柱**（可拆可修）；其次 3M 胶/热熔胶（维修痛苦）
-* 线束：槽内少量点胶固定，避免合盖后“挤压位移”
-
-### 棋子磁铁与检测的匹配
-
-* 你会用“带磁铁的重棋子”（Saiboard 也强调磁性棋子）。磁铁强度、极性一致性很关键。([GitHub][1])
-* 漏检通常不是软件问题，而是：
-
-  * 面板太厚 / 传感器太深
-  * 磁铁太弱或装反
-  * 传感器位置偏移（装配定位不准）
-
-### 量产角度的建议（你后期要接外部平台）
-
-* **控制腔接口标准化**：电源口、USB、备用 UART/I2C、预留 GPIO
-* **模块化 PCB**：坏一块换一块；别一整张大 PCB
-* **底盖可拆**：否则每次迭代都要“撬板”
-
----
-
-## 6) 怎么把“Saiboard 的具体做法”变成你可采购/可打样的资料？
-
-Saiboard 仓库已经把项目拆成了 `board/`（木工/CNC）、`electronics/`（电子）、`stones/`（棋子）和 `software/`（软件/含 web app）这几个采购/生产维度。([GitHub][1])
-你接下来最省事的方式是：
-
-1. 你在本地把仓库下载下来（ZIP 或 git clone）
-2. 把下面几类文件（截图或打包）发我，我就能按作者的**真实尺寸与工艺**给你还原“每层板怎么开槽、PCB 怎么排、线怎么汇聚”：
-
-   * `board/` 里的 **G-code / DXF / STEP / STL / 加工说明**
-   * `electronics/` 里的 **KiCad 工程 / Gerber / BOM**
-   * `pics/` 里棋盘背面/内部的照片（通常会一眼看出走线槽布局）
-
-> 你不懂机械也没关系：只要这些文件在，我可以帮你把它翻译成“给 CNC 厂/电子厂能看懂的加工单 + 采购清单 + 装配 SOP”。
-
----
-
-如果你愿意，我也可以顺便给你一个“**最稳的打样结构**”（2 层木板 + 1 底盖 + 分块 PCB + 单侧汇线的方案），专门面向你说的“后期要接入其它平台、要可维护、不要从头再来”。
-
-[1]: https://github.com/miliar/saiboard "GitHub - miliar/saiboard: An open-source, wooden electronic Go board that integrates with KataGo."
-[2]: https://github.com/miliar/saiboard?utm_source=chatgpt.com "miliar/saiboard: An open-source, wooden electronic Go ..."
+如果你愿意，我也可以把上面这两段内容进一步整理成一页“可交付工厂的项目说明”（含材料厚度表、工艺流程图、交付文件清单），方便你直接发给 CNC 木工厂 / 贴片厂 / 装配厂。
